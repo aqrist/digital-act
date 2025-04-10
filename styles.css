@@ -1,0 +1,462 @@
+:root {
+    --primary-color: #006633;
+    /* Tong Tji Green */
+    --secondary-color: #FFD700;
+    /* Gold/Yellow */
+    --accent-color: #004d26;
+    /* Darker Green */
+    --light-color: #FFFDF0;
+    /* Light cream */
+    --dark-color: #333333;
+    /* Dark Gray */
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: var(--light-color);
+    color: var(--dark-color);
+    overflow-x: hidden;
+}
+
+.navbar {
+    background-color: var(--primary-color);
+}
+
+.navbar-brand img {
+    max-height: 50px;
+}
+
+.nav-link {
+    color: var(--light-color) !important;
+    font-weight: 500;
+    margin: 0 5px;
+    transition: all 0.3s;
+}
+
+.nav-link:hover,
+.nav-link.active {
+    color: var(--secondary-color) !important;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+}
+
+.section-container {
+    display: none;
+    min-height: 80vh;
+    padding: 2rem 0;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+.section-container.active {
+    display: block;
+}
+
+.section-title {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 1.5rem;
+    border-bottom: 3px solid var(--accent-color);
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+.card {
+    border-radius: 15px;
+    overflow: hidden;
+    transition: all 0.3s;
+    border: none;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    background-color: white;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+}
+
+.card-header {
+    background-color: var(--primary-color);
+    color: white;
+    font-weight: 600;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover {
+    background-color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-outline-primary {
+    color: var(--accent-color);
+    border-color: var(--accent-color);
+}
+
+.btn-outline-primary:hover {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+/* Webcam container */
+.webcam-container {
+    width: 100%;
+    max-width: 500px;
+    margin: 0 auto;
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+#webcam,
+#webcam-output,
+#spirit-webcam {
+    width: 100%;
+    border-radius: 15px;
+}
+
+.scan-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: 4px solid var(--primary-color);
+    border-radius: 15px;
+    box-sizing: border-box;
+    animation: scanAnimation 2s infinite;
+    display: none;
+}
+
+@keyframes scanAnimation {
+    0% {
+        border-color: rgba(0, 102, 51, 0.5);
+    }
+
+    50% {
+        border-color: rgba(0, 102, 51, 1);
+    }
+
+    100% {
+        border-color: rgba(0, 102, 51, 0.5);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Custom styles for tea personality */
+.result-container {
+    display: none;
+    animation: fadeIn 1s;
+}
+
+.tea-result {
+    text-align: center;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.tea-image {
+    width: 100%;
+    max-width: 200px;
+    margin: 0 auto 20px;
+    border-radius: 10px;
+}
+
+.tea-title {
+    color: var(--primary-color);
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+/* Spirit Swap styles */
+.character-selection {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.character-card {
+    width: 150px;
+    cursor: pointer;
+    border: 3px solid transparent;
+    border-radius: 10px;
+    transition: all 0.3s;
+    padding: 10px;
+    text-align: center;
+}
+
+.character-card:hover {
+    transform: scale(1.05);
+}
+
+.character-card.selected {
+    border-color: var(--accent-color);
+    background-color: rgba(34, 139, 34, 0.1);
+}
+
+.character-card img {
+    width: 100%;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Tea Blend Game */
+.ingredient-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.ingredient {
+    padding: 8px 15px;
+    background-color: white;
+    border: 2px solid var(--secondary-color);
+    border-radius: 20px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.ingredient:hover {
+    background-color: var(--secondary-color);
+    color: var(--dark-color);
+}
+
+.ingredient.selected {
+    background-color: var(--primary-color);
+    color: white;
+    border-color: var(--primary-color);
+}
+
+.blend-container {
+    background-color: #f8f8f8;
+    border-radius: 15px;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.blend-result {
+    display: none;
+    animation: fadeIn 1s;
+}
+
+/* Fortune Teller */
+.tea-selector {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+
+.tea-option {
+    width: 120px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.tea-option:hover {
+    transform: scale(1.05);
+}
+
+.tea-option img {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.fortune-result {
+    display: none;
+    background-color: #f1f1f1;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    margin-top: 40px;
+    animation: fadeIn 1s;
+}
+
+.fortune-result:before {
+    content: '';
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 0 20px 20px 20px;
+    border-style: solid;
+    border-color: transparent transparent #f1f1f1 transparent;
+}
+
+/* Sip & Snap */
+.drop-area {
+    border: 3px dashed var(--secondary-color);
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    margin-bottom: 30px;
+    transition: all 0.3s;
+    background-color: rgba(210, 180, 140, 0.1);
+    cursor: pointer;
+}
+
+.drop-area:hover,
+.drop-area.dragover {
+    background-color: rgba(210, 180, 140, 0.3);
+    border-color: var(--primary-color);
+}
+
+.drop-area i {
+    font-size: 3rem;
+    color: var(--secondary-color);
+    margin-bottom: 15px;
+}
+
+.leaderboard {
+    background-color: white;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.leaderboard-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-bottom: 1px solid #eee;
+}
+
+.leaderboard-item:last-child {
+    border-bottom: none;
+}
+
+.leaderboard-rank {
+    font-weight: 700;
+    font-size: 1.2rem;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background-color: var(--secondary-color);
+    color: var(--dark-color);
+    margin-right: 15px;
+}
+
+.leaderboard-rank.top {
+    background-color: var(--accent-color);
+    color: white;
+}
+
+.leaderboard-img {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+.upload-preview {
+    display: none;
+    margin-top: 20px;
+    animation: fadeIn 0.5s;
+}
+
+.rating-result {
+    display: none;
+    animation: fadeIn 0.5s;
+}
+
+/* Footer */
+footer {
+    background-color: var(--primary-color);
+    color: var(--light-color);
+    padding: 20px 0;
+    text-align: center;
+}
+
+.social-links a {
+    color: var(--light-color);
+    margin: 0 10px;
+    font-size: 1.2rem;
+    transition: all 0.3s;
+}
+
+.social-links a:hover {
+    color: var(--secondary-color);
+    transform: translateY(-3px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .character-selection {
+        justify-content: space-around;
+    }
+
+    .character-card {
+        width: 120px;
+        margin-bottom: 15px;
+    }
+
+    .tea-selector {
+        gap: 10px;
+    }
+
+    .tea-option {
+        width: 100px;
+    }
+
+    .fortune-result {
+        padding: 20px;
+    }
+}
+
+@media (max-width: 576px) {
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .card:hover {
+        transform: none;
+    }
+
+    .drop-area {
+        padding: 20px;
+    }
+
+    .drop-area i {
+        font-size: 2rem;
+    }
+
+    .leaderboard-img {
+        width: 40px;
+        height: 40px;
+    }
+
+    .leaderboard-rank {
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+    }
+}
