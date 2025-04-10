@@ -5,8 +5,69 @@ document.addEventListener('DOMContentLoaded', function () {
     initSpiritSwap();
     initBlendGame();
     initFortuneTeller();
-    initSipSnap();
 });
+
+window.addEventListener('orientationchange', function () {
+    // Adjust UI elements based on orientation
+    adjustForOrientation();
+});
+
+
+// Initial adjustment
+adjustForOrientation();
+
+function adjustForOrientation() {
+    const isPortrait = window.matchMedia("(orientation: portrait)").matches;
+    const isTablet = window.matchMedia("(max-width: 991px) and (min-width: 576px)").matches;
+
+    if (isTablet && isPortrait) {
+        // Adjust UI for tablet portrait mode
+        document.body.classList.add('tablet-portrait');
+
+        // Adjust webcam containers
+        const webcamContainers = document.querySelectorAll('.webcam-container');
+        webcamContainers.forEach(container => {
+            container.style.maxHeight = '300px';
+        });
+
+        // Make character selection scrollable
+        const characterSelection = document.querySelector('.character-selection');
+        if (characterSelection) {
+            characterSelection.style.overflowX = 'auto';
+            characterSelection.style.flexWrap = 'nowrap';
+        }
+
+        // Adjust tea selector
+        const teaSelector = document.querySelector('.tea-selector');
+        if (teaSelector) {
+            teaSelector.style.overflowX = 'auto';
+            teaSelector.style.flexWrap = 'nowrap';
+        }
+    } else {
+        // Reset adjustments
+        document.body.classList.remove('tablet-portrait');
+
+        // Reset webcam containers
+        const webcamContainers = document.querySelectorAll('.webcam-container');
+        webcamContainers.forEach(container => {
+            container.style.maxHeight = '';
+        });
+
+        // Reset character selection
+        const characterSelection = document.querySelector('.character-selection');
+        if (characterSelection) {
+            characterSelection.style.overflowX = '';
+            characterSelection.style.flexWrap = '';
+        }
+
+        // Reset tea selector
+        const teaSelector = document.querySelector('.tea-selector');
+        if (teaSelector) {
+            teaSelector.style.overflowX = '';
+            teaSelector.style.flexWrap = '';
+        }
+    }
+}
 
 // Navigation and section switching
 function initNavigation() {
@@ -113,6 +174,7 @@ function initTehPersonality() {
 }
 
 // 2. Tea Spirit Swap
+// 2. Tea Spirit Swap
 function initSpiritSwap() {
     const characterCards = document.querySelectorAll('.character-card');
     const captureFaceBtn = document.getElementById('capture-face');
@@ -121,46 +183,57 @@ function initSpiritSwap() {
     const spiritResultContainer = document.querySelector('.spirit-result-container');
     const spiritResultTitle = document.getElementById('spirit-result-title');
     const spiritWebcam = document.getElementById('spirit-webcam');
+    const spiritResultImage = document.getElementById('spirit-result-image');
 
-    // Initialize webcam simulation
-    if (spiritWebcam) {
-        // Simulating webcam with a gradient animation
-        const ctx = document.createElement('canvas').getContext('2d');
-        ctx.canvas.width = 640;
-        ctx.canvas.height = 480;
+    // API configuration - replace with your actual API key
+    const API_KEY = 'sk_nawW_pElWkoL2dHmZ1QspTbpvUj8kDVpLgiH76mg2kc';
 
-        function drawWebcamSimulation() {
-            const time = Date.now() * 0.001;
-            const hue = (time * 10) % 360;
+    let selectedCharacter = null;
+    let stream = null;
 
-            ctx.fillStyle = `hsl(${hue}, 50%, 80%)`;
-            ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+    // Initialize real webcam
+    async function startWebcam() {
+        try {
+            stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    width: { ideal: 640 },
+                    height: { ideal: 480 },
+                    facingMode: "user"
+                }
+            });
 
-            // Draw a simulated face outline
-            ctx.strokeStyle = 'rgba(0,0,0,0.3)';
-            ctx.lineWidth = 2;
-            ctx.beginPath();
-            ctx.ellipse(ctx.canvas.width / 2, ctx.canvas.height / 2, 100, 130, 0, 0, 2 * Math.PI);
-            ctx.stroke();
-
-            // Add eyes
-            ctx.beginPath();
-            ctx.ellipse(ctx.canvas.width / 2 - 40, ctx.canvas.height / 2 - 30, 15, 10, 0, 0, 2 * Math.PI);
-            ctx.ellipse(ctx.canvas.width / 2 + 40, ctx.canvas.height / 2 - 30, 15, 10, 0, 0, 2 * Math.PI);
-            ctx.stroke();
-
-            // Add smile
-            ctx.beginPath();
-            ctx.arc(ctx.canvas.width / 2, ctx.canvas.height / 2 + 20, 50, 0.2, Math.PI - 0.2);
-            ctx.stroke();
-
-            spiritWebcam.src = ctx.canvas.toDataURL();
-            requestAnimationFrame(drawWebcamSimulation);
+            if (spiritWebcam) {
+                spiritWebcam.srcObject = stream;
+                spiritWebcam.play();
+            }
+        } catch (err) {
+            console.error("Error accessing webcam:", err);
+            alert("Could not access webcam. Please check your camera permissions.");
         }
-
-        drawWebcamSimulation();
     }
 
+    // Start webcam when section becomes active
+    const navLinks = document.querySelectorAll('.nav-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', function () {
+            const targetSection = this.getAttribute('data-section');
+            if (targetSection === 'spiritswap') {
+                startWebcam();
+            } else if (stream) {
+                // Stop webcam when navigating away
+                stream.getTracks().forEach(track => track.stop());
+                stream = null;
+            }
+        });
+    });
+
+    // Also start webcam if Spirit Swap is the initial active section
+    const spiritSwapSection = document.getElementById('spiritswap');
+    if (spiritSwapSection && spiritSwapSection.classList.contains('active')) {
+        startWebcam();
+    }
+
+    // Character selection
     if (characterCards.length) {
         characterCards.forEach(card => {
             card.addEventListener('click', function () {
@@ -173,8 +246,10 @@ function initSpiritSwap() {
                 // Enable capture button
                 if (captureFaceBtn) captureFaceBtn.disabled = false;
 
+                // Store selected character
+                selectedCharacter = this.getAttribute('data-character');
+
                 // Update result title based on selected character
-                const character = this.getAttribute('data-character');
                 if (character === 'jasmine') {
                     spiritResultTitle.innerText = 'Spirit of Jasmine';
                 } else if (character === 'blacktea') {
@@ -186,20 +261,115 @@ function initSpiritSwap() {
         });
     }
 
-    if (captureFaceBtn) {
-        captureFaceBtn.addEventListener('click', function () {
-            // Disable capture button
-            captureFaceBtn.disabled = true;
+    // Get character image as base64
+    async function getCharacterImageBase64(character) {
+        // Get the image URL based on the selected character
+        const characterImageUrl = `images/${character}.png`;
 
-            // Simulate processing
-            setTimeout(() => {
+        // Fetch the image and convert to base64
+        try {
+            const response = await fetch(characterImageUrl);
+            const blob = await response.blob();
+
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => {
+                    // Remove data:image/jpeg;base64, prefix
+                    const base64data = reader.result.split(',')[1];
+                    resolve(base64data);
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            });
+        } catch (error) {
+            console.error('Error loading character image:', error);
+            alert('Failed to load character image. Please try again.');
+            captureFaceBtn.disabled = false;
+            captureFaceBtn.innerHTML = '<i class="fas fa-camera me-1"></i> Capture Wajah';
+            return null;
+        }
+    }
+
+    // Merge faces using Novita AI API
+    async function mergeFaces(faceImage, characterImage) {
+        const options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${API_KEY}`
+            },
+            body: JSON.stringify({
+                face_image_file: faceImage,
+                image_file: characterImage,
+                extra: {
+                    response_image_type: "png",
+                    enterprise_plan: {
+                        enabled: false
+                    }
+                }
+            })
+        };
+
+        try {
+            const response = await fetch('https://api.novita.ai/v3/merge-face', options);
+            const data = await response.json();
+
+            if (data.image_file) {
+                // Display the result
+                spiritResultImage.src = `data:image/png;base64,${data.image_file}`;
+
                 // Show result
                 initialSpiritMessage.classList.add('d-none');
                 spiritResultContainer.classList.remove('d-none');
 
                 captureFaceBtn.classList.add('d-none');
                 if (retryCaptureBtn) retryCaptureBtn.classList.remove('d-none');
-            }, 2000);
+            } else {
+                throw new Error('No image returned from API');
+            }
+        } catch (error) {
+            console.error('Error merging faces:', error);
+            alert('Failed to merge faces. Please try again.');
+
+            // Reset UI
+            captureFaceBtn.disabled = false;
+            captureFaceBtn.innerHTML = '<i class="fas fa-camera me-1"></i> Capture Wajah';
+        }
+    }
+
+    if (captureFaceBtn) {
+        captureFaceBtn.addEventListener('click', async function () {
+            if (!selectedCharacter) {
+                alert('Please select a character first!');
+                return;
+            }
+
+            if (!stream) {
+                alert('Webcam is not active. Please refresh and try again.');
+                return;
+            }
+
+            // Create a canvas to capture the current frame
+            const canvas = document.createElement('canvas');
+            canvas.width = spiritWebcam.videoWidth;
+            canvas.height = spiritWebcam.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(spiritWebcam, 0, 0);
+
+            // Get the captured image data (remove data:image/png;base64, prefix)
+            const capturedImage = canvas.toDataURL('image/jpeg').split(',')[1];
+
+            // Disable capture button and show loading state
+            captureFaceBtn.disabled = true;
+            captureFaceBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Processing...';
+
+            // Get the character image
+            const characterImage = await getCharacterImageBase64(selectedCharacter);
+
+            // Call Novita AI API to merge faces
+            if (characterImage) {
+                mergeFaces(capturedImage, characterImage);
+            }
         });
     }
 
@@ -214,8 +384,20 @@ function initSpiritSwap() {
 
             // Keep the character selected but enable the capture button
             captureFaceBtn.disabled = false;
+            captureFaceBtn.innerHTML = '<i class="fas fa-camera me-1"></i> Capture Wajah';
         });
     }
+
+    // Clean up webcam resources when component is unmounted
+    function cleanupWebcam() {
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+    }
+
+    // Clean up when window is closed
+    window.addEventListener('beforeunload', cleanupWebcam);
 }
 
 // 3. Blend Your Tea Game
@@ -405,171 +587,5 @@ function initFortuneTeller() {
         };
 
         return names[code] || code;
-    }
-}
-
-// 5. Sip & Snap Challenge
-function initSipSnap() {
-    const dropArea = document.getElementById('drop-area');
-    const fileInput = document.getElementById('file-input');
-    const uploadPreview = document.querySelector('.upload-preview');
-    const previewImage = document.getElementById('preview-image');
-    const analyzePhotoBtn = document.getElementById('analyze-photo');
-    const reuploadBtn = document.getElementById('reupload');
-    const ratingResult = document.querySelector('.rating-result');
-
-    if (dropArea && fileInput) {
-        // Prevent default drag behaviors
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, preventDefaults, false);
-        });
-
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-
-        // Highlight drop area when item is dragged over it
-        ['dragenter', 'dragover'].forEach(eventName => {
-            dropArea.addEventListener(eventName, highlight, false);
-        });
-
-        ['dragleave', 'drop'].forEach(eventName => {
-            dropArea.addEventListener(eventName, unhighlight, false);
-        });
-
-        function highlight() {
-            dropArea.classList.add('dragover');
-        }
-
-        function unhighlight() {
-            dropArea.classList.remove('dragover');
-        }
-
-        // Handle dropped files
-        dropArea.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-
-            if (files.length) {
-                // Show preview
-                showUploadPreview();
-            }
-        }
-
-        // Handle file input changes
-        fileInput.addEventListener('change', function () {
-            if (this.files.length) {
-                // Show preview
-                showUploadPreview();
-            }
-        });
-
-        // Click on drop area also triggers file input
-        dropArea.addEventListener('click', function () {
-            fileInput.click();
-        });
-
-        function showUploadPreview() {
-            dropArea.style.display = 'none';
-            uploadPreview.style.display = 'block';
-
-            // Create random image preview for demo
-            if (previewImage) {
-                const randomImage = createRandomTeaImage();
-                previewImage.src = randomImage;
-            }
-        }
-
-        function createRandomTeaImage() {
-            // Create a canvas for generating a random tea image
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            canvas.width = 400;
-            canvas.height = 300;
-
-            // Draw background
-            const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-            gradient.addColorStop(0, '#f5f5f5');
-            gradient.addColorStop(1, '#e0e0e0');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw a tea cup
-            ctx.beginPath();
-            ctx.arc(canvas.width / 2, canvas.height / 2, 80, 0, Math.PI, true);
-            ctx.lineTo(canvas.width / 2 - 100, canvas.height / 2);
-            ctx.arc(canvas.width / 2, canvas.height / 2 + 20, 100, Math.PI, 0, true);
-            ctx.lineTo(canvas.width / 2 + 100, canvas.height / 2);
-            ctx.fillStyle = '#8B4513';
-            ctx.fill();
-
-            // Draw the tea liquid
-            ctx.beginPath();
-            ctx.arc(canvas.width / 2, canvas.height / 2, 75, 0, Math.PI, true);
-            ctx.lineTo(canvas.width / 2 - 75, canvas.height / 2);
-            ctx.lineTo(canvas.width / 2 + 75, canvas.height / 2);
-            ctx.fillStyle = '#d4a76a';
-            ctx.fill();
-
-            // Draw cup handle
-            ctx.beginPath();
-            ctx.ellipse(canvas.width / 2 + 120, canvas.height / 2 + 20, 20, 40, 0, Math.PI * 1.5, Math.PI * 0.5);
-            ctx.strokeStyle = '#8B4513';
-            ctx.lineWidth = 10;
-            ctx.stroke();
-
-            // Add some steam
-            for (let i = 0; i < 3; i++) {
-                ctx.beginPath();
-                const startX = canvas.width / 2 - 30 + i * 30;
-                const startY = canvas.height / 2 - 10;
-                ctx.moveTo(startX, startY);
-
-                ctx.bezierCurveTo(
-                    startX - 10, startY - 30,
-                    startX + 10, startY - 60,
-                    startX - 5, startY - 90
-                );
-
-                ctx.strokeStyle = 'rgba(200, 200, 200, 0.5)';
-                ctx.lineWidth = 3;
-                ctx.stroke();
-            }
-
-            // Add "Tong Tji" text
-            ctx.font = 'bold 24px Arial';
-            ctx.fillStyle = '#FFFFFF';
-            ctx.textAlign = 'center';
-            ctx.fillText('Tong Tji', canvas.width / 2, canvas.height / 2 + 10);
-
-            return canvas.toDataURL();
-        }
-
-        if (analyzePhotoBtn) {
-            analyzePhotoBtn.addEventListener('click', function () {
-                // Simulate analysis
-                analyzePhotoBtn.disabled = true;
-                analyzePhotoBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Menganalisis...';
-
-                setTimeout(() => {
-                    // Show result
-                    if (ratingResult) ratingResult.style.display = 'block';
-                    analyzePhotoBtn.disabled = false;
-                    analyzePhotoBtn.innerHTML = '<i class="fas fa-magic me-1"></i> Analisis Tea Vibe';
-                }, 2000);
-            });
-        }
-
-        if (reuploadBtn) {
-            reuploadBtn.addEventListener('click', function () {
-                // Reset to initial state
-                dropArea.style.display = 'block';
-                uploadPreview.style.display = 'none';
-                if (ratingResult) ratingResult.style.display = 'none';
-            });
-        }
     }
 }
